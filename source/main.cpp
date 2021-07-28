@@ -416,6 +416,18 @@ void parseWiki(int threadNum){
                 size_t firstl = response.find("{{Item/ByName");
                 size_t secondl = response.find("}}", firstl);
                 string result = response.substr(firstl + 2, secondl - firstl - 2);
+				while (result.find("[[") != string::npos){//remove links to other items
+					size_t firstl = result.find("[[");
+					size_t secondl = result.find("]]");
+					string replace = result.substr(firstl, secondl - firstl + 2);
+					string link = replace.substr(2, replace.length() - 4);
+					vector<string> opts = explode("|", link);
+					if (opts.size() >= 2){
+						string name = opts[1];
+						result.replace(firstl, secondl - firstl + 2, name);
+					}
+					else break;
+				}
                 vector<string> info = explode("|", result);
                 if (info[0] == "Item/ByName"){
                     if (info[1].substr(0, 4) == "name") {
@@ -443,6 +455,18 @@ void parseWiki(int threadNum){
         size_t secondl = response.find("}}", firstl);
         if (firstl != string::npos && secondl != string::npos){
             string result = response.substr(firstl + 2, secondl - firstl - 2);
+			while (result.find("[[") != string::npos){//remove links to other items
+				size_t firstl = result.find("[[");
+				size_t secondl = result.find("]]");
+				string replace = result.substr(firstl, secondl - firstl + 2);
+				string link = replace.substr(2, replace.length() - 4);
+				vector<string> opts = explode("|", link);
+				if (opts.size() >= 2){
+					string name = opts[1];
+					result.replace(firstl, secondl - firstl + 2, name);
+				}
+				else break;
+			}
             vector<string> info = explode("|", result);
             if (info[0] == "Item" && info.size() >= 2) {
                 if (info[1] == "No info.") continue;
