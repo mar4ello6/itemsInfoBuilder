@@ -1,0 +1,20 @@
+name: build_items_json
+on:
+  push:
+    paths:
+      - 'items.dat'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: chmod +x itemParser
+      - run: ./itemParser
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: false
+          title: "Latest items data"
+          files: |
+            items.json
