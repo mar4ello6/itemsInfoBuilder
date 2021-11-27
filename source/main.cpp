@@ -11,10 +11,13 @@ int doneParsing = 0;
 int threadAmount = 10;
 
 enum Mods {
-	djump,
-	hjump,
-	speedy,
-	fastdig
+	djump, //Double Jump
+	hjump, //High Jump
+	speedy, //Speedy
+	fastdig, //Enhanced Digging
+	fireproof, //Fireproof
+	slowfall, //Slow-Fall
+	xpbuff //XP Buff
 };
 
 struct item{
@@ -82,6 +85,7 @@ struct item{
 	char newValue8 = 0;
 	char newValue9 = 0;
 	int newInt1 = 0;
+	int newInt2 = 0;
 };
 
 item* items = NULL;
@@ -110,7 +114,7 @@ void decode_itemsDat(){
 	memcpy(&itemCount, data + memPos, 4);
 	memPos += 4;
     items = new item[itemCount];
-    if (itemsdatVer > 13){
+    if (itemsdatVer > 14){
         cout << "Unsupported items.dat! Version: " << to_string(itemsdatVer) << endl;
         exit(-1);
     }
@@ -336,6 +340,10 @@ void decode_itemsDat(){
 			memcpy(&item.newInt1, data + memPos, 4);
 			memPos += 4;
 		}
+		if (itemsdatVer >= 14){
+			memcpy(&item.newInt2, data + memPos, 4);
+			memPos += 4;
+		}
         if (i != item.itemID) {
             cout << "Unordered item! Something gone wrong?" << endl;
             exit(-1);
@@ -531,6 +539,9 @@ void parseWiki_mods(){
 				if (m.mod == "High Jump") items[i].mods |= 1 << Mods::hjump;
 				if (m.mod == "Speedy") items[i].mods |= 1 << Mods::speedy;
 				if (m.mod == "Enhanced Digging") items[i].mods |= 1 << Mods::fastdig;
+				if (m.mod == "Fireproof") items[i].mods |= 1 << Mods::fireproof;
+				if (m.mod == "Slow-Fall") items[i].mods |= 1 << Mods::slowfall;
+				if (m.mod == "XP Buff") items[i].mods |= 1 << Mods::xpbuff;
 			}
 		}
 	}
@@ -597,6 +608,7 @@ void saveJSON(){
 		j["newValue8"] = item.newValue8;
 		j["newValue9"] = item.newValue9;
 		j["newInt1"] = item.newInt1;
+		j["newInt2"] = item.newInt2;
 		j["description"] = item.description;
 		j["mods"] = item.mods;
         js["items"].push_back(j);
