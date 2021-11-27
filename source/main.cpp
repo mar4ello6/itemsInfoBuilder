@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <atomic>
 
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #include "httplib.h"
@@ -7,7 +8,7 @@
 
 using namespace std;
 
-int doneParsing = 0;
+std::atomic<int> doneParsing;
 int threadAmount = 10;
 
 enum Mods {
@@ -620,11 +621,12 @@ void saveJSON(){
 
 int main(){
     decode_itemsDat();
+	doneParsing = 0;
     for (int i = 0; i < threadAmount; i++) {
         thread parse(parseWiki, i);
         parse.detach();
     }
-    while (doneParsing != threadAmount);
+    while (doneParsing != threadAmount) std::this_thread::sleep_for(std::chrono::milliseconds(100));
     printf("Done parsing descriptions!\n");
     parseWiki_mods();
 	printf("Parsed mods\n");
