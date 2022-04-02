@@ -28,9 +28,9 @@ struct item{
 
     //from items.dat
     int itemID = 0;
-	char editableType = 0;
-	char itemCategory = 0;
-	unsigned char actionType = 0;
+	char itemProps1 = 0;
+	char itemProps2 = 0;
+	unsigned char itemCategory = 0;
 	char hitSoundType = 0;
 	string name = "";
 	string texture = "";
@@ -126,15 +126,15 @@ void decode_itemsDat(){
 			memPos += 4;
 		}
 		{
-			item.editableType = data[memPos];
+			item.itemProps1 = data[memPos];
+			memPos += 1;
+		}
+		{
+			item.itemProps2 = data[memPos];
 			memPos += 1;
 		}
 		{
 			item.itemCategory = data[memPos];
-			memPos += 1;
-		}
-		{
-			item.actionType = data[memPos];
 			memPos += 1;
 		}
 		{
@@ -554,9 +554,9 @@ void saveJSON(){
 		item item = items[i];
 		nlohmann::json j;
 		j["itemID"] = item.itemID;
-        j["editableType"] = item.editableType;
+        j["itemProps1"] = item.itemProps1;
+        j["itemProps2"] = item.itemProps2;
         j["itemCategory"] = item.itemCategory;
-        j["actionType"] = item.actionType;
         j["hitSoundType"] = item.hitSoundType;
         j["name"] = item.name;
         j["texture"] = item.texture;
