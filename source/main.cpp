@@ -442,17 +442,20 @@ void parseWiki(int threadNum){
                     if (info[1].substr(0, 4) == "name") {
                         if (info[1].substr(5) == items[i].name || info[1].substr(7) == items[i].name){
                             items[i].description = info[2];
-                            if (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
+                            while (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
+							while (items[i].description.find("’") != string::npos) name.replace(name.find("’"), 1, "'");
                         }
                     } else if (info.size() == 4) {
                         if (info[3].substr(5) == items[i].name || info[3].substr(7) == items[i].name) {
                             items[i].description = info[1];
-                            if (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
+                            while (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
+							while (items[i].description.find("’") != string::npos) name.replace(name.find("’"), 1, "'");
                         }
                     } else if (info.size() == 3) {
                         if (info[2].substr(5) == items[i].name || info[2].substr(7) == items[i].name) {
                             items[i].description = info[1];
-                            if (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
+                        	while (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
+							while (items[i].description.find("’") != string::npos) name.replace(name.find("’"), 1, "'");
                         }
                     }
                 }
@@ -486,17 +489,20 @@ void parseWiki(int threadNum){
                 if (info[1].substr(0, 4) == "name"){
                     if (info[1].substr(5) == items[i].name || info[1].substr(7) == items[i].name){
                         items[i].description = info[2];
-                        if (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
+                        while (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
+						while (items[i].description.find("’") != string::npos) name.replace(name.find("’"), 1, "'");
                     }
                 } else if (info.size() == 4) {
                     if (info[3].substr(5) == items[i].name || info[3].substr(7) == items[i].name) {
                         items[i].description = info[1];
-                        if (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
+                        while (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
+						while (items[i].description.find("’") != string::npos) name.replace(name.find("’"), 1, "'");
                     }
                 } else if (info.size() == 3) {
                     if (info[2].substr(5) == items[i].name || info[2].substr(7) == items[i].name) {
                         items[i].description = info[1];
-                        if (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
+                        while (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
+						while (items[i].description.find("’") != string::npos) name.replace(name.find("’"), 1, "'");
                     }
                 }
             }
