@@ -391,8 +391,10 @@ void parseWiki(int threadNum){
         if (items[i].name.substr(0, 9) == "null_item") continue;
         string name = items[i].name;
         if (name.find("?") != string::npos) name.replace(name.find("?"), 1, "%3F");
+		if (name.find("#") != string::npos) name.replace(name.find("#"), 1, "");
         string path = "/wiki/" + name + "?action=raw";
         auto res = cli.Get(path.c_str());
+		while (res == nullptr) res = cli.Get(path.c_str());
         if (res->status != 200) {
             printf("Server returned status %i for %s!\n", res->status, items[i].name.c_str());
             continue;
@@ -442,20 +444,44 @@ void parseWiki(int threadNum){
                     if (info[1].substr(0, 4) == "name") {
                         if (info[1].substr(5) == items[i].name || info[1].substr(7) == items[i].name){
                             items[i].description = info[2];
-                            while (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
-							while (items[i].description.find("’") != string::npos) name.replace(name.find("’"), 1, "'");
+                            while (true) {
+								size_t charPos = items[i].description.find("\n");
+								if (charPos == string::npos) break;
+								items[i].description.replace(charPos, 1, "<CR>");
+							}
+							while (true) {
+								size_t charPos = items[i].description.find("’");
+								if (charPos == string::npos) break;
+								items[i].description.replace(charPos, 3, "'");
+							}
                         }
                     } else if (info.size() == 4) {
                         if (info[3].substr(5) == items[i].name || info[3].substr(7) == items[i].name) {
                             items[i].description = info[1];
-                            while (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
-							while (items[i].description.find("’") != string::npos) name.replace(name.find("’"), 1, "'");
+                            while (true) {
+								size_t charPos = items[i].description.find("\n");
+								if (charPos == string::npos) break;
+								items[i].description.replace(charPos, 1, "<CR>");
+							}
+							while (true) {
+								size_t charPos = items[i].description.find("’");
+								if (charPos == string::npos) break;
+								items[i].description.replace(charPos, 3, "'");
+							}
                         }
                     } else if (info.size() == 3) {
                         if (info[2].substr(5) == items[i].name || info[2].substr(7) == items[i].name) {
                             items[i].description = info[1];
-                        	while (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
-							while (items[i].description.find("’") != string::npos) name.replace(name.find("’"), 1, "'");
+                            while (true) {
+								size_t charPos = items[i].description.find("\n");
+								if (charPos == string::npos) break;
+								items[i].description.replace(charPos, 1, "<CR>");
+							}
+							while (true) {
+								size_t charPos = items[i].description.find("’");
+								if (charPos == string::npos) break;
+								items[i].description.replace(charPos, 3, "'");
+							}
                         }
                     }
                 }
@@ -483,26 +509,59 @@ void parseWiki(int threadNum){
             if (info[0] == "Item" && info.size() >= 2) {
                 if (info[1] == "No info.") continue;
                 items[i].description = info[1];
-                //add replace \n to <CR>
+                while (true) {
+					size_t charPos = items[i].description.find("\n");
+					if (charPos == string::npos) break;
+					items[i].description.replace(charPos, 1, "<CR>");
+				}
+				while (true) {
+					size_t charPos = items[i].description.find("’");
+					if (charPos == string::npos) break;
+					items[i].description.replace(charPos, 3, "'");
+				}
             } else if (info[0] == "Item/ByName"){
                 if (info[1] == "No info.") continue;
                 if (info[1].substr(0, 4) == "name"){
                     if (info[1].substr(5) == items[i].name || info[1].substr(7) == items[i].name){
                         items[i].description = info[2];
-                        while (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
-						while (items[i].description.find("’") != string::npos) name.replace(name.find("’"), 1, "'");
+						while (true) {
+							size_t charPos = items[i].description.find("\n");
+							if (charPos == string::npos) break;
+							items[i].description.replace(charPos, 1, "<CR>");
+						}
+						while (true) {
+							size_t charPos = items[i].description.find("’");
+							if (charPos == string::npos) break;
+							items[i].description.replace(charPos, 3, "'");
+						}
                     }
                 } else if (info.size() == 4) {
                     if (info[3].substr(5) == items[i].name || info[3].substr(7) == items[i].name) {
                         items[i].description = info[1];
-                        while (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
-						while (items[i].description.find("’") != string::npos) name.replace(name.find("’"), 1, "'");
+						while (true) {
+							size_t charPos = items[i].description.find("\n");
+							if (charPos == string::npos) break;
+							items[i].description.replace(charPos, 1, "<CR>");
+						}
+						while (true) {
+							size_t charPos = items[i].description.find("’");
+							if (charPos == string::npos) break;
+							items[i].description.replace(charPos, 3, "'");
+						}
                     }
                 } else if (info.size() == 3) {
                     if (info[2].substr(5) == items[i].name || info[2].substr(7) == items[i].name) {
                         items[i].description = info[1];
-                        while (items[i].description.find("\n") != string::npos) name.replace(name.find("\n"), 1, "<CR>");
-						while (items[i].description.find("’") != string::npos) name.replace(name.find("’"), 1, "'");
+						while (true) {
+							size_t charPos = items[i].description.find("\n");
+							if (charPos == string::npos) break;
+							items[i].description.replace(charPos, 1, "<CR>");
+						}
+						while (true) {
+							size_t charPos = items[i].description.find("’");
+							if (charPos == string::npos) break;
+							items[i].description.replace(charPos, 3, "'");
+						}
                     }
                 }
             }
@@ -626,7 +685,7 @@ void saveJSON(){
 }
 
 int main(){
-    decode_itemsDat();
+	decode_itemsDat();
 	doneParsing = 0;
     for (int i = 0; i < threadAmount; i++) {
         thread parse(parseWiki, i);
