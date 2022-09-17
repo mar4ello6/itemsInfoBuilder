@@ -19,3 +19,5 @@ jobs:
           title: "Latest items data"
           files: |
             items.json
+            splices.json
+            combines.json

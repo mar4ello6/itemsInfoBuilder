@@ -89,6 +89,23 @@ struct item{
 	int newInt2 = 0;
 };
 
+struct SpliceItem{
+	int result;	//result item (tree)
+	int item1; //needed first item (seed)
+	int item2; //needed second item (seed)
+};
+
+struct CombineItem{
+	pair<int, unsigned char> result; //result item & count
+	pair<int, unsigned char> item1; //needed item (id&count)
+	pair<int, unsigned char> item2;	//needed item (id&count)
+	pair<int, unsigned char> item3;	//needed item (id&count)
+};
+
+mutex recipeMutex;
+vector<SpliceItem> splices;
+vector<CombineItem> combines;
+
 item* items = NULL;
 int itemCount = 0;
 
@@ -567,6 +584,96 @@ void parseWiki(int threadNum){
             }
         }
         if (items[i].description == "No info.") printf("Didn't find description for %s (id: %i)\n", items[i].name.c_str(), i);
+		//trying to get splice recipe
+		{
+			size_t first = response.find("{{RecipeSplice");
+			size_t second = response.find("}}", first);
+			if (first != string::npos && second != string::npos){
+				string result = response.substr(first + 2, second - first - 2);
+				vector<string> info = explode("|", result);
+				if (info.size() == 3 || info.size() == 4){
+					if (info[0] == "RecipeSplice") {
+						int item1 = 0;
+						int item2 = 0;
+						if (info[1] == "Mutated") item1 = 4455;
+						if (info[2] == "Mutated") item2 = 4455;
+						for (int i = 0; i < itemCount; i++){
+							if (items[i].name == info[1]) item1 = items[i].itemID + 1; //get seed id
+							if (items[i].name == info[2]) item2 = items[i].itemID + 1; //get seed id
+							if (item1 != 0 && item2 != 0) break;
+						}
+						if (item1 != 0 && item2 != 0){
+							SpliceItem it;
+							it.result = i;
+							it.item1 = item1;
+							it.item2 = item2;
+							recipeMutex.lock();
+							splices.push_back(it);
+							recipeMutex.unlock();
+						}
+						else {
+							printf("%s couldn't find splice recipe items: %i:%s & %i:%s\n", items[i].name.c_str(), item1, info[1].c_str(), item2, info[2].c_str());
+						}
+					}
+				}
+				else {
+					printf("%s has wrong splice info size: %li\n", items[i].name.c_str(), info.size());
+				}
+			}
+		}
+		//trying to get combine recipe
+		{
+			size_t first = response.find("{{RecipeCombine");
+			size_t second = response.find("}}", first);
+			if (first != string::npos && second != string::npos){
+				string result = response.substr(first + 2, second - first - 2);
+				vector<string> info = explode("|", result);
+				if (info.size() == 7 || info.size() == 8 || info.size() == 9){
+					if (info[0] == "RecipeCombine") {
+						int resultC = 0;
+						int item1 = 0;
+						int item1c = 0;
+						int item2 = 0;
+						int item2c = 0;
+						int item3 = 0;
+						int item3c = 0;
+						try {
+							item1c = stoi(info[2]);
+							item2c = stoi(info[4]);
+							item3c = stoi(info[6]);
+							if (info.size() >= 8) {
+								if (info[7] == "") resultC = 1;
+								else if (info[7] == "Amount given = 1") resultC = 1;
+								else resultC = stoi(info[7]);
+							}
+							else resultC = 1;
+						} catch (...) {	}
+						for (int i = 0; i < itemCount; i++){
+							if (items[i].name == info[1]) item1 = items[i].itemID;
+							if (items[i].name == info[3]) item2 = items[i].itemID;
+							if (items[i].name == info[5]) item3 = items[i].itemID;
+							if (item1 != 0 && item2 != 0 && item3 != 0) break;
+						}
+						if (item1 != 0 && item2 != 0 && item3 != 0 && item1c != 0 && item2c != 0 && item3c != 0 && resultC != 0){
+							CombineItem it;
+							it.result = {i, resultC};
+							it.item1 = {item1, item1c};
+							it.item2 = {item2, item2c};
+							it.item3 = {item3, item3c};
+							recipeMutex.lock();
+							combines.push_back(it);
+							recipeMutex.unlock();
+						}
+						else {
+							printf("%s couldn't find combine recipe items: %i & %i:%i:%s & %i:%i:%s & %i:%i:%s\n", items[i].name.c_str(), resultC, item1c, item1, info[1].c_str(), item2c, item2, info[3].c_str(), item3c, item3, info[5].c_str());
+						}
+					}
+				}
+				else {
+					printf("%s has wrong combine info size: %li\n", items[i].name.c_str(), info.size());
+				}
+			}
+		}
     }
     doneParsing++;
 }
@@ -684,6 +791,46 @@ void saveJSON(){
 	o.close();
 }
 
+void saveJSONrecipes(){
+	{
+		nlohmann::json js;
+		for (auto& i : splices){
+			nlohmann::json j;
+			j["itemID"] = i.result;
+			j["madeOf"].push_back(i.item1);
+			j["madeOf"].push_back(i.item2);
+			js["splices"].push_back(j);
+		}
+		ofstream o("splices.json");
+		o << setw(4) << js << endl;
+		o.close();
+	}
+	{
+		nlohmann::json js;
+		for (auto& i : combines){
+			nlohmann::json j;
+			j["resultItem"].push_back(i.result.first);
+			j["resultItem"].push_back(i.result.second);
+			nlohmann::json ji1;
+			ji1["itemID"] = i.item1.first;
+			ji1["count"] = i.item1.second;
+			j["madeOf"].push_back(ji1);
+			nlohmann::json ji2;
+			ji2["itemID"] = i.item2.first;
+			ji2["count"] = i.item2.second;
+			j["madeOf"].push_back(ji2);
+			nlohmann::json ji3;
+			ji3["itemID"] = i.item2.first;
+			ji3["count"] = i.item2.second;
+			j["madeOf"].push_back(ji3);
+			js["combines"].push_back(j);
+		}
+		ofstream o("combines.json");
+		o << setw(4) << js << endl;
+		o.close();
+	}
+}
+
 int main(){
 	decode_itemsDat();
 	doneParsing = 0;
@@ -697,5 +844,7 @@ int main(){
 	printf("Parsed mods\n");
 	saveJSON();
 	printf("Saved items.json!\n");
+	saveJSONrecipes();
+	printf("Save recipes jsons!\n");
 	return 0;
 }
