@@ -1,0 +1,1 @@
+/usr/bin/g++ -g main.cpp -o itemParser -lpthread -lssl -lcrypto

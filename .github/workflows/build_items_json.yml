@@ -1,17 +1,23 @@
 name: build_items_json
 on:
   push:
-    paths:
-      - 'items.dat'
   workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
-      - run: chmod +x itemParser
-      - run: ./itemParser
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Build item parser
+        run: |
+          cd source
+          chmod +x build.sh
+          ./build.sh
+          mv itemParser ..
+          cd ..
+      - name: Run item parser
+        run: ./itemParser
+      - name: Release new items' data
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
