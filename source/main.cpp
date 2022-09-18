@@ -820,8 +820,8 @@ void saveJSONrecipes(){
 			ji2["count"] = i.item2.second;
 			j["madeOf"].push_back(ji2);
 			nlohmann::json ji3;
-			ji3["itemID"] = i.item2.first;
-			ji3["count"] = i.item2.second;
+			ji3["itemID"] = i.item3.first;
+			ji3["count"] = i.item3.second;
 			j["madeOf"].push_back(ji3);
 			js["combines"].push_back(j);
 		}
