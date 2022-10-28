@@ -791,7 +791,29 @@ void saveJSON(){
 	o.close();
 }
 
-void saveJSONrecipes(){
+void saveRecipes(){
+	{
+		ofstream o("splices.txt");
+		//heading
+		o << "//Splice recipes (GTWiki parser by mar4ello6)\n//Format: itemID(result)|ingredient1|ingredient2\n";
+		for (auto& i : splices){
+			o << to_string(i.result) << "|" << to_string(i.item1) << "|" << to_string(i.item2) << "\n";
+		}
+		o.close();
+	}
+	{
+		ofstream o("combines.txt");
+		//heading
+		o << "//Combine recipes (GTWiki parser by mar4ello6)\n//Format: itemID(result),count|ingredient1,count|ingredient2,count|ingredient3,count\n";
+		for (auto& i : combines){
+			o << to_string(i.result.first) << "," << to_string(i.result.second) << "|" << to_string(i.item1.first) << "," << to_string(i.item1.second) << "|"
+			  << to_string(i.item2.first) << "," << to_string(i.item2.second) << "|" << to_string(i.item3.first) << "," << to_string(i.item3.second) << "\n";
+		}
+		o.close();
+	}
+}
+
+/*void saveJSONrecipes(){
 	{
 		nlohmann::json js;
 		for (auto& i : splices){
@@ -829,7 +851,7 @@ void saveJSONrecipes(){
 		o << setw(4) << js << endl;
 		o.close();
 	}
-}
+}*/
 
 int main(){
 	decode_itemsDat();
@@ -844,7 +866,7 @@ int main(){
 	printf("Parsed mods\n");
 	saveJSON();
 	printf("Saved items.json!\n");
-	saveJSONrecipes();
-	printf("Save recipes jsons!\n");
+	saveRecipes();
+	printf("Save recipes!\n");
 	return 0;
 }
