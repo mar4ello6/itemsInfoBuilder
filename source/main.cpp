@@ -87,6 +87,14 @@ struct item{
 	char newValue9 = 0;
 	int newInt1 = 0;
 	int newInt2 = 0;
+	bool canPlayerSit = false;
+	int sitPlayerOffsetX = 0;
+	int sitPlayerOffsetY = 0;
+	int sitOverlayX = 0;
+	int sitOverlayY = 0;
+	int sitOverlayOffsetX = 0;
+	int sitOverlayOffsetY = 0;
+	string sitOverlayTexture = "";
 };
 
 struct SpliceItem{
@@ -132,7 +140,7 @@ void decode_itemsDat(){
 	memcpy(&itemCount, data + memPos, 4);
 	memPos += 4;
     items = new item[itemCount];
-    if (itemsdatVer > 14){
+    if (itemsdatVer > 15){
         cout << "Unsupported items.dat! Version: " << to_string(itemsdatVer) << endl;
         exit(-1);
     }
@@ -361,6 +369,30 @@ void decode_itemsDat(){
 		if (itemsdatVer >= 14){
 			memcpy(&item.newInt2, data + memPos, 4);
 			memPos += 4;
+		}
+		if (itemsdatVer >= 15){
+			item.canPlayerSit = data[memPos];
+			memPos++;
+			item.sitPlayerOffsetX = *(int*)(data + memPos);
+			memPos += 4;
+			item.sitPlayerOffsetY = *(int*)(data + memPos);
+			memPos += 4;
+			item.sitOverlayX = *(int*)(data + memPos);
+			memPos += 4;
+			item.sitOverlayY = *(int*)(data + memPos);
+			memPos += 4;
+			item.sitOverlayOffsetX = *(int*)(data + memPos);
+			memPos += 4;
+			item.sitOverlayOffsetY = *(int*)(data + memPos);
+			memPos += 4;
+			{
+				int16_t strLen = *(int16_t*)&data[memPos];
+				memPos += 2;
+				for (int j = 0; j < strLen; j++) {
+					item.sitOverlayTexture += data[memPos];
+					memPos++;
+				}
+			}
 		}
         if (i != item.itemID) {
             cout << "Unordered item! Something gone wrong?" << endl;
@@ -782,6 +814,14 @@ void saveJSON(){
 		j["newValue9"] = item.newValue9;
 		j["newInt1"] = item.newInt1;
 		j["newInt2"] = item.newInt2;
+		j["canPlayerSit"] = item.canPlayerSit;
+		j["sitPlayerOffsetX"] = item.sitPlayerOffsetX;
+		j["sitPlayerOffsetY"] = item.sitPlayerOffsetY;
+		j["sitOverlayX"] = item.sitOverlayX;
+		j["sitOverlayY"] = item.sitOverlayY;
+		j["sitOverlayOffsetX"] = item.sitOverlayOffsetX;
+		j["sitOverlayOffsetY"] = item.sitOverlayOffsetY;
+		j["sitOverlayTexture"] = item.sitOverlayTexture;
 		j["description"] = item.description;
 		j["mods"] = item.mods;
         js["items"].push_back(j);
@@ -867,6 +907,6 @@ int main(){
 	saveJSON();
 	printf("Saved items.json!\n");
 	saveRecipes();
-	printf("Save recipes!\n");
+	printf("Saved recipes!\n");
 	return 0;
 }
