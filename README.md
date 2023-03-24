@@ -3,7 +3,7 @@ It decodes all items from items.dat and gets all items' descriptions and item mo
 
 For lazy people, who doesn't see Releases tab: [Download latest items.json](https://github.com/mar4ello6/itemsInfoBuilder/releases/download/latest/items.json)
 
-Parser is compiled for use on Linux. Using g++ to compile it (watch [this](../main/source/.vscode/tasks.json) to see compiling command). It uses:
+Parser is compiled for use on Linux. Compiling it using g++ (check [this](../main/source/build.sh) to see the compiling command). It uses:
 * [GrowtopiaNoobs' items.dat decoder](https://github.com/GrowtopiaNoobs/Growtopia_ItemsDecoder) as base
 * [cpp-httplib](https://github.com/yhirose/cpp-httplib) to get descriptions and mods from wiki
 * [JSON](https://github.com/nlohmann/json) to store got items' data

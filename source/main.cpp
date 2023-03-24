@@ -718,34 +718,49 @@ void parseWiki_mods(){
         return;
     }
     string response = res->body;
-    int firstl = response.find("<tabber>");
-    response = response.substr(firstl + 9, response.find("</tabber>") - firstl - 9);
-    struct Mod{
+	vector<string> modPages;
+	{
+		int index = 0;
+		while (response.find("[[Mods/", index) != string::npos) {
+			int firstl = response.find("[[Mods/", index);
+			modPages.push_back(response.substr(firstl + 7, response.find("|", firstl) - firstl - 7));
+			index = firstl + 7;
+		}
+	}
+	struct Mod{
         string mod = "";
         vector<string> items;
     };
     vector<Mod> mods;
-    vector<string> work = explode("|-|", response);
-    for (string& s : work){
-        Mod mod;
-        mod.mod = s.substr(0, s.find("="));
-        int index = 0;
-        while (s.find("{{ItemLink|", index) != string::npos) {
-            int firstl = s.find("{{ItemLink|", index);
-            mod.items.push_back(s.substr(firstl + 11, s.find("}}", firstl) - firstl - 11));
-            index = firstl + 11;
+	for (auto& s : modPages){
+		Mod mod;
+		mod.mod = s;
+		string path = "/wiki/Mods/" + s + "?action=raw";
+		auto res = cli.Get(path.c_str());
+		if (res->status != 200) {
+			printf("Server returned status %i while trying to parse %s mod.\n", res->status, s.c_str());
+			continue;
+		}
+		string response = res->body;
+		int index = 0;
+        while (response.find("{{Mod|", index) != string::npos) {
+            int startOfLine = response.find("{{Mod|", index);
+			int endOfLine = response.find("}}", startOfLine + 6);
+			int delimiterInLine = response.find("|", startOfLine + 6);
+            mod.items.push_back(response.substr(startOfLine + 6, (delimiterInLine > endOfLine ? endOfLine : delimiterInLine) - startOfLine - 6));
+            index = startOfLine + 6;
         }
         mods.push_back(mod);
-    }
+	}
 	for (int i = 0; i < itemCount; i++){
 		for (Mod& m : mods){
 			for (string& n : m.items) if (n == items[i].name){
 				if (m.mod == "Double Jump") items[i].mods |= 1 << Mods::djump;
 				if (m.mod == "High Jump") items[i].mods |= 1 << Mods::hjump;
 				if (m.mod == "Speedy") items[i].mods |= 1 << Mods::speedy;
-				if (m.mod == "Enhanced Digging") items[i].mods |= 1 << Mods::fastdig;
+				if (m.mod == "Punch Damage") items[i].mods |= 1 << Mods::fastdig;
 				if (m.mod == "Fireproof") items[i].mods |= 1 << Mods::fireproof;
-				if (m.mod == "Slow-Fall") items[i].mods |= 1 << Mods::slowfall;
+				if (m.mod == "Slow Fall") items[i].mods |= 1 << Mods::slowfall;
 				if (m.mod == "XP Buff") items[i].mods |= 1 << Mods::xpbuff;
 			}
 		}
